@@ -4,47 +4,33 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_game_links():
-    start_time = datetime.now().timestamp()
-    first_year = 1998
-    current_year = int(datetime.now().strftime('%Y'))
+def get_game_links(year):
     base_url = 'https://www.sk.rs/arhiva/rubrika/test-play/'
-    game_links = []
     time_elapsed = 0
+    start_time_for_year_iteration = datetime.now().timestamp()
+    test_play = requests.get(base_url + str(year))
+    soup = BeautifulSoup(test_play.text, 'html.parser')
+    links = soup.select('tr[valign=top] div.strana a.naslovmini')
+    url = 'https://www.sk.rs/'
+    game_links = []
 
-    while first_year <= current_year:
-        start_time_for_year_iteration = datetime.now().timestamp()
-        test_play = requests.get(base_url + str(first_year))
-        soup = BeautifulSoup(test_play.text, 'html.parser')
-        links = soup.select('tr[valign=top] div.strana a.naslovmini')
-        url = 'https://www.sk.rs/'
+    for i in links:
+        print(url + i.get('href'))
+        game_links.append(url + i.get('href'))
 
-        for i in links:
-            print(url + i.get('href'))
-            game_links.append(url + i.get('href'))
-
-        end_time_for_year_iteration = datetime.now().timestamp()
-        time_to_complete_year_iteration = end_time_for_year_iteration - start_time_for_year_iteration
-        time_minutes = int(time_to_complete_year_iteration / 60)
-        time_seconds = round(time_to_complete_year_iteration % 60, 1)
-        print(f'Time needed to get {first_year} links: {time_minutes}m {time_seconds}s')
-        time_elapsed += time_to_complete_year_iteration
-        elapsed_minutes = int(time_elapsed / 60)
-        elapsed_seconds = round(time_elapsed % 60, 1)
-        print(f'Time elapsed: {elapsed_minutes}m {elapsed_seconds}s')
-        num_of_years_to_scrape = current_year - first_year
-        approx_time_needed_to_get_all_links = time_to_complete_year_iteration * num_of_years_to_scrape
-        approx_minutes = int(approx_time_needed_to_get_all_links / 60)
-        approx_seconds = round(approx_time_needed_to_get_all_links % 60, 1)
-        print(f'Time remaining: {approx_minutes}m {approx_seconds}s')
-        first_year += 1
-
-    end_time = datetime.now().timestamp()
-    time_to_complete = end_time - start_time
-    time_minutes = int(time_to_complete / 60)
-    time_seconds = round(time_to_complete % 60, 1)
-    print(f'Time needed to get all links: {time_minutes}m {time_seconds}s')
-    return game_links
+    end_time_for_year_iteration = datetime.now().timestamp()
+    time_to_complete_year_iteration = end_time_for_year_iteration - start_time_for_year_iteration
+    time_minutes = int(time_to_complete_year_iteration / 60)
+    time_seconds = round(time_to_complete_year_iteration % 60, 1)
+    print(f'Time needed to get {year} links: {time_minutes}m {time_seconds}s')
+    time_elapsed += time_to_complete_year_iteration
+    elapsed_minutes = int(time_elapsed / 60)
+    elapsed_seconds = round(time_elapsed % 60, 1)
+    print(f'Time elapsed: {elapsed_minutes}m {elapsed_seconds}s')
+    file = open('e:/temp/links' + str(year) + '.txt', 'w')
+    file_json = json.dumps(game_links)
+    file.write(file_json)
+    file.close()
 
 
 def scrape_game_data(links):
@@ -54,6 +40,7 @@ def scrape_game_data(links):
     for link in links:
         start_time_link = datetime.now().timestamp()
         test_play = requests.get(link)
+        test_play.encoding = 'utf-8'
         soup = BeautifulSoup(test_play.text, 'html.parser')
 
         title = soup.select('.naslovstrana')[0].text if soup.select('.naslovstrana') else ''
@@ -77,29 +64,38 @@ def scrape_game_data(links):
                           'platform': platform, 'date': date, 'link': link})
 
         end_time_link = datetime.now().timestamp()
-        time_to_finish = end_time_link - start_time_link
-        time_minutes = int(time_to_finish / 60)
-        time_seconds = round(time_to_finish % 60, 1)
+        time_to_finish_link_scrape = end_time_link - start_time_link
+        time_minutes = int(time_to_finish_link_scrape / 60)
+        time_seconds = round(time_to_finish_link_scrape % 60, 1)
         print(f'Time needed to scrape {link} data: {time_minutes}m {time_seconds}s')
-        time_elapsed += time_to_finish
+        time_elapsed += time_to_finish_link_scrape
         elapsed_minutes = int(time_elapsed / 60)
         elapsed_seconds = round(time_elapsed % 60, 1)
         print(f'Time elapsed: {elapsed_minutes}m {elapsed_seconds}s')
-        approx_time_needed_to_scrape_all_games = time_to_finish * len(links)
-        approx_minutes = int(approx_time_needed_to_scrape_all_games / 60)
-        approx_seconds = round(approx_time_needed_to_scrape_all_games % 60, 1)
-        print(f'Time remaining: {approx_minutes}m {approx_seconds}s')
 
     end_time = datetime.now().timestamp()
     time_to_finish = end_time - start_time
-    time_minutes = int(time_to_finish / 60)
-    time_seconds = round(time_to_finish % 60, 1)
-    print(f'Time needed to scrape data from all the games: {time_minutes}m {time_seconds}s')
+    total_minutes = int(time_to_finish / 60)
+    total_seconds = round(time_to_finish % 60, 1)
+    print(f'Time needed to scrape all data: {total_minutes}m {total_seconds}s')
     return game_list
 
 
+f = open('e:/temp/links1.txt', 'r')
+file_content = f.read()
+game_links = json.loads(file_content)
+f.close()
+game_data = scrape_game_data(game_links)
+f = open('e:/temp/DATA.json', 'wb')
+f.write(json.dumps(game_data, ensure_ascii=False).encode('utf-8'))
+f.close()
+
+
 '''
-set utf-8
-put data by year in separate files
-fix total elapsed time needed for scraping counter
+f = open('e:/temp/data.json', 'r')
+data = f.read()
+data_list = json.loads(data)
+
+for d in data_list:
+    print(d['date'])
 '''
