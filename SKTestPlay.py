@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 def get_game_links(year):
     base_url = 'https://www.sk.rs/arhiva/rubrika/test-play/'
     time_elapsed = 0
+
+    # make separate function for measuring time
     start_time_for_year_iteration = datetime.now().timestamp()
     test_play = requests.get(base_url + str(year))
     soup = BeautifulSoup(test_play.text, 'html.parser')
@@ -27,10 +29,7 @@ def get_game_links(year):
     elapsed_minutes = int(time_elapsed / 60)
     elapsed_seconds = round(time_elapsed % 60, 1)
     print(f'Time elapsed: {elapsed_minutes}m {elapsed_seconds}s')
-    file = open('e:/temp/links' + str(year) + '.txt', 'w')
-    file_json = json.dumps(game_links)
-    file.write(file_json)
-    file.close()
+    return game_links
 
 
 def scrape_game_data(links):
@@ -57,7 +56,7 @@ def scrape_game_data(links):
 
         if platform == '' and soup.find('tr', string='MINIMUM:'):
             platform = 'PC'
-        date = soup.select('.autordatum')[1].text if soup.select('.autordatum') else ''
+        date = soup.select('.autordatum')[1].text if soup.select('.autordatum') else ''  # use only month as num and year
         link = test_play.url
 
         game_list.append({'title': title, 'author': author, 'score': score,
@@ -81,21 +80,15 @@ def scrape_game_data(links):
     return game_list
 
 
-f = open('e:/temp/links1.txt', 'r')
-file_content = f.read()
-game_links = json.loads(file_content)
-f.close()
-game_data = scrape_game_data(game_links)
-f = open('e:/temp/DATA.json', 'wb')
-f.write(json.dumps(game_data, ensure_ascii=False).encode('utf-8'))
-f.close()
+def get_json_from_file(file_path):
+    file = open(file_path, 'r')
+    file_content = file.read()
+    file_json = json.loads(file_content)
+    file.close()
 
 
-'''
-f = open('e:/temp/data.json', 'r')
-data = f.read()
-data_list = json.loads(data)
-
-for d in data_list:
-    print(d['date'])
-'''
+def save_json_to_file(file_path, data):
+    file = open(file_path, 'wb')
+    json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
+    file.write(json_data)
+    file.close()
