@@ -7,8 +7,6 @@ from bs4 import BeautifulSoup
 def get_game_links(year):
     base_url = 'https://www.sk.rs/arhiva/rubrika/test-play/'
     time_elapsed = 0
-
-    # make separate function for measuring time
     start_time_for_year_iteration = datetime.now().timestamp()
     test_play = requests.get(base_url + str(year))
     soup = BeautifulSoup(test_play.text, 'html.parser')
@@ -35,7 +33,7 @@ def get_game_links(year):
 def scrape_game_data(links):
     start_time = datetime.now().timestamp()
     time_elapsed = 0
-    game_list = []
+    game_data = []
     for link in links:
         start_time_link = datetime.now().timestamp()
         test_play = requests.get(link)
@@ -56,10 +54,12 @@ def scrape_game_data(links):
 
         if platform == '' and soup.find('tr', string='MINIMUM:'):
             platform = 'PC'
-        date = soup.select('.autordatum')[1].text if soup.select('.autordatum') else ''  # use only month as num and year
+        date = soup.select('.autordatum')[1].text if soup.select('.autordatum') else ''
+        date_temp = date.split(' ')
+        date = date_temp[1] + ' ' + date_temp[2]
         link = test_play.url
 
-        game_list.append({'title': title, 'author': author, 'score': score,
+        game_data.append({'title': title, 'author': author, 'score': score,
                           'platform': platform, 'date': date, 'link': link})
 
         end_time_link = datetime.now().timestamp()
@@ -77,19 +77,33 @@ def scrape_game_data(links):
     total_minutes = int(time_to_finish / 60)
     total_seconds = round(time_to_finish % 60, 1)
     print(f'Time needed to scrape all data: {total_minutes}m {total_seconds}s')
-    return game_list
+    return game_data
+
+
+def merge_game_data(year, file_path):
+    year = 1998
+    merged_game_data = []
+
+    while year <= 2020:
+        f = open(file_path + str(year) + '.json', encoding='utf-8')
+        file_content = f.read()
+        merged_game_data += json.loads(file_content)
+        f.close()
+        year += 1
+
+    return merged_game_data
 
 
 def get_json_from_file(file_path):
-    file = open(file_path, 'r')
-    file_content = file.read()
+    f = open(file_path, 'r')
+    file_content = f.read()
     file_json = json.loads(file_content)
-    file.close()
+    f.close()
     return file_json
 
 
 def save_json_to_file(file_path, data):
-    file = open(file_path, 'wb')
+    f = open(file_path, 'ab')
     json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
-    file.write(json_data)
-    file.close()
+    f.write(json_data)
+    f.close()
