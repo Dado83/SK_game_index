@@ -42,14 +42,14 @@ def scrape_game_data(links):
         test_play.encoding = 'utf-8'
         soup = BeautifulSoup(test_play.text, 'html.parser')
 
-        title = soup.select('.naslovstrana')[0].text if soup.select('.naslovstrana') else ''
-        author = soup.select('.autordatum')[0].text if soup.select('.autordatum') else ''
-        score = soup.select('.oc')[0].text if soup.select('.oc') else ''
+        title = soup.select('.naslovstrana')[0].text.strip() if soup.select('.naslovstrana') else ''
+        author = soup.select('.autordatum')[0].text.strip() if soup.select('.autordatum') else ''
+        score = soup.select('.oc')[0].text.strip() if soup.select('.oc') else ''
         platform = ''
         if soup.find('tr', string='Platforma:'):
-            platform = soup.find('tr', string='Platforma:').find_next('tr').text
+            platform = soup.find('tr', string='Platforma:').find_next('tr').text.strip()
         elif soup.find('tr', string='PLATFORMA:'):
-            platform = soup.find('tr', string='PLATFORMA:').find_next('tr').text
+            platform = soup.find('tr', string='PLATFORMA:').find_next('tr').text.strip()
 
         if platform == '' and soup.find('tr', string='Potrebno:'):
             platform = 'PC'
@@ -85,6 +85,7 @@ def get_json_from_file(file_path):
     file_content = file.read()
     file_json = json.loads(file_content)
     file.close()
+    return file_json
 
 
 def save_json_to_file(file_path, data):
