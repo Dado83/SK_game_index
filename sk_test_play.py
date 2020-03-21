@@ -56,7 +56,8 @@ def scrape_game_data(links):
             platform = 'PC'
         date = soup.select('.autordatum')[1].text if soup.select('.autordatum') else ''
         date_temp = date.split(' ')
-        date = date_temp[1] + ' ' + date_temp[2]
+        date_month = format_date(date_temp[1])
+        date = str(date_month) + '.' + date_temp[2]
         link = test_play.url
 
         game_data.append({'title': title, 'author': author, 'score': score,
@@ -80,11 +81,19 @@ def scrape_game_data(links):
     return game_data
 
 
-def merge_game_data(year, file_path):
+def format_date(date):
+    months = {'januar': 1, 'februar': 2, 'mart': 3, 'april': 4, 'maj': 5, 'jun': 6,
+              'jul': 7, 'avgust': 8, 'septembar': 9, 'oktobar': 10, 'novembar': 11, 'decembar': 12}
+    for m in months:
+        if date == m:
+            return months.get(m)
+
+
+def merge_game_data(file_path, last_year):
     year = 1998
     merged_game_data = []
 
-    while year <= 2020:
+    while year <= last_year:
         f = open(file_path + str(year) + '.json', encoding='utf-8')
         file_content = f.read()
         merged_game_data += json.loads(file_content)
@@ -103,7 +112,17 @@ def get_json_from_file(file_path):
 
 
 def save_json_to_file(file_path, data):
-    f = open(file_path, 'ab')
+    f = open(file_path, 'wb')
     json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
     f.write(json_data)
     f.close()
+
+
+def scrape_all_game_data(path, year=None, last_year=None):
+    if last_year:
+        start_year = 1998
+        while start_year <= last_year:
+            save_json_to_file(path+str(start_year) + '.json', scrape_game_data(get_game_links(start_year)))
+            start_year += 1
+    else:
+        save_json_to_file(path, scrape_game_data(get_game_links(year)))
