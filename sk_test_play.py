@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 
 
 def get_game_links(year):
+    '''Get game links by year'''
+
     base_url = 'https://www.sk.rs/arhiva/rubrika/test-play/'
     time_elapsed = 0
     start_time_for_year_iteration = datetime.now().timestamp()
@@ -31,6 +33,8 @@ def get_game_links(year):
 
 
 def scrape_game_data(links):
+    '''Scrape game data from link'''
+
     start_time = datetime.now().timestamp()
     time_elapsed = 0
     game_data = []
@@ -82,14 +86,18 @@ def scrape_game_data(links):
 
 
 def format_date(date):
+    '''Helper fn for month format'''
+
     months = {'januar': 1, 'februar': 2, 'mart': 3, 'april': 4, 'maj': 5, 'jun': 6,
               'jul': 7, 'avgust': 8, 'septembar': 9, 'oktobar': 10, 'novembar': 11, 'decembar': 12}
     for m in months:
         if date == m:
-            return months.get(m)
+            return months[m]
 
 
 def merge_game_data(file_path, last_year):
+    '''Takes separate json files and merges them in a single json file'''
+
     year = 1998
     merged_game_data = []
 
@@ -119,6 +127,8 @@ def save_json_to_file(file_path, data):
 
 
 def scrape_all_game_data(path, year=None, last_year=None):
+    '''Scrapes game data by year and saves it in separate json files'''
+
     if last_year:
         start_year = 1998
         while start_year <= last_year:
