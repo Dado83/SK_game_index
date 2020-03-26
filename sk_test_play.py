@@ -82,14 +82,15 @@ def scrape_game_data(links):
     total_minutes = int(time_to_finish / 60)
     total_seconds = round(time_to_finish % 60, 1)
     print(f'Time needed to scrape all data: {total_minutes}m {total_seconds}s')
+    game_data.reverse()
     return game_data
 
 
 def format_date(date):
     '''Helper fn for month format'''
 
-    months = {'januar': 1, 'februar': 2, 'mart': 3, 'april': 4, 'maj': 5, 'jun': 6,
-              'jul': 7, 'avgust': 8, 'septembar': 9, 'oktobar': 10, 'novembar': 11, 'decembar': 12}
+    months = {'januar': '01', 'februar': '02', 'mart': '03', 'april': '04', 'maj': '05', 'jun': '06',
+              'jul': '07', 'avgust': '08', 'septembar': '09', 'oktobar': '10', 'novembar': '11', 'decembar': '12'}
     for m in months:
         if date == m:
             return months[m]
@@ -129,6 +130,7 @@ def save_json_to_file(file_path, data):
 def scrape_all_game_data(path, year=None, last_year=None):
     '''Scrapes game data by year and saves it in separate json files'''
 
+    start_time = datetime.now().timestamp()
     if last_year:
         start_year = 1998
         while start_year <= last_year:
@@ -136,3 +138,9 @@ def scrape_all_game_data(path, year=None, last_year=None):
             start_year += 1
     else:
         save_json_to_file(path, scrape_game_data(get_game_links(year)))
+
+    end_time = datetime.now().timestamp()
+    time_to_finish = end_time - start_time
+    total_minutes = int(time_to_finish / 60)
+    total_seconds = round(time_to_finish % 60, 1)
+    print(f'Time needed to scrape TEST PLAY: {total_minutes}m {total_seconds}s')
