@@ -134,10 +134,10 @@ def scrape_all_game_data(path, year=None, last_year=None):
     if last_year:
         start_year = 1998
         while start_year <= last_year:
-            save_json_to_file(path+str(start_year) + '.json', scrape_game_data(get_game_links(start_year)))
+            save_json_to_file(path + str(start_year) + '.json', scrape_game_data(get_game_links(start_year)))
             start_year += 1
     else:
-        save_json_to_file(path, scrape_game_data(get_game_links(year)))
+        save_json_to_file(path + str(year) + '.json', scrape_game_data(get_game_links(year)))
 
     end_time = datetime.now().timestamp()
     time_to_finish = end_time - start_time
