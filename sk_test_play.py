@@ -108,8 +108,8 @@ def merge_game_data(file_path, last_year):
         merged_game_data += json.loads(file_content)
         f.close()
         year += 1
-
-    return merged_game_data.reverse()
+    merged_game_data.reverse()
+    return merged_game_data
 
 
 def get_json_from_file(file_path):
