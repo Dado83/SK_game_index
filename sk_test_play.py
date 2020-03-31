@@ -52,12 +52,19 @@ def scrape_game_data(links):
             platform = soup.find('tr', string='Platforma:').find_next('tr').text.strip()
         elif soup.find('tr', string='PLATFORMA:'):
             platform = soup.find('tr', string='PLATFORMA:').find_next('tr').text.strip()
+        elif soup.find('tr', string='Platfoma:'):
+            platform = soup.find('tr', string='Platfoma:').find_next('tr').text.strip()
 
-        if platform == '' and soup.find('tr', string='Potrebno:'):
+        if platform == '' and (soup.find('tr', string='Potrebno:')
+                               or soup.find('tr', string='POTREBNO:')
+                               or soup.find('tr', string='MINIMUM:')
+                               or soup.find('tr', string='Minimum:')
+                               or soup.find('tr', string='Putrebno:')
+                               or soup.find('tr', string='aPotrebno:')
+                               or soup.find('tr', string='Veličina:')
+                               ):
             platform = 'PC'
 
-        if platform == '' and soup.find('tr', string='MINIMUM:'):
-            platform = 'PC'
         date = soup.select('.autordatum')[1].text if soup.select('.autordatum') else ''
         date_temp = date.split(' ')
         date_month = format_date(date_temp[1])
@@ -113,7 +120,7 @@ def merge_game_data(file_path, last_year):
 
 
 def get_json_from_file(file_path):
-    f = open(file_path, 'r')
+    f = open(file_path, 'rb')
     file_content = f.read()
     file_json = json.loads(file_content)
     f.close()
