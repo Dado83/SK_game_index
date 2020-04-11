@@ -110,28 +110,26 @@ def merge_game_data(file_path, last_year):
     merged_game_data = []
 
     while year <= last_year:
-        f = open(file_path + str(year) + '.json', encoding='utf-8')
-        file_content = f.read()
+        with open(file_path + str(year) + '.json', encoding='utf-8') as f:
+            file_content = f.read()
         merged_game_data += json.loads(file_content)
-        f.close()
         year += 1
     merged_game_data.reverse()
     return merged_game_data
 
 
 def get_json_from_file(file_path):
-    f = open(file_path, 'rb')
-    file_content = f.read()
+    with open(file_path, 'rb') as f:
+        file_content = f.read()
     file_json = json.loads(file_content)
-    f.close()
     return file_json
 
 
 def save_json_to_file(file_path, data):
-    f = open(file_path, 'wb')
     json_data = json.dumps(data, ensure_ascii=False).encode('utf-8')
-    f.write(json_data)
-    f.close()
+    with open(file_path, 'wb') as f:
+        f.write(json_data)
+    return True
 
 
 def scrape_all_game_data(path, year=None, last_year=None):
