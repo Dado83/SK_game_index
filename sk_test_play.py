@@ -46,7 +46,8 @@ def scrape_game_data(links):
 
         title = soup.select('.naslovstrana')[0].text.strip() if soup.select('.naslovstrana') else ''
         author = soup.select('.autordatum')[0].text.strip() if soup.select('.autordatum') else ''
-        score = soup.select('.oc')[0].text.strip() if soup.select('.oc') else ''
+        score = soup.select('.oc')[0].text.strip() if soup.select('.oc') else soup.select(
+            '.Arhiva-Ocena')[0].text.strip() if soup.select('.Arhiva-Ocena') else ''
         platform = ''
         if soup.find('tr', string='Platforma:'):
             platform = soup.find('tr', string='Platforma:').find_next('tr').text.strip()
@@ -54,6 +55,10 @@ def scrape_game_data(links):
             platform = soup.find('tr', string='PLATFORMA:').find_next('tr').text.strip()
         elif soup.find('tr', string='Platfoma:'):
             platform = soup.find('tr', string='Platfoma:').find_next('tr').text.strip()
+        elif soup.select('.Arhiva-Kategorija'):
+            for el in soup.select('.Arhiva-Kategorija'):
+                if 'Platforma' in el.text:
+                    platform = el.text.strip('Platforma:').strip()
 
         if platform == '' and (soup.find('tr', string='Potrebno:')
                                or soup.find('tr', string='POTREBNO:')
