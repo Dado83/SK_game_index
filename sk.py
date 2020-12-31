@@ -2,13 +2,13 @@ import sk_test_play as sk
 
 
 # update game data
-sk.scrape_all_game_data('e:/temp/sk/', year=2020)
+sk.scrape_all_game_data('e:/temp/sk/', year=2021)
 
 # write data to single file
-sk.save_json_to_file('e:/temp/sk.json', sk.merge_game_data('e:/temp/sk/', 2020))
+sk.save_json_to_file('e:/temp/sk.json', sk.merge_game_data('e:/temp/sk/', 2021))
 
 # create temp list consisting of only current year
-list = sk.get_json_from_file('e:/temp/sk/2020.json')
+list = sk.get_json_from_file('e:/temp/sk/2021.json')
 list.reverse()
 sk.save_json_to_file('e:/temp/skTemp.json', list)
 
