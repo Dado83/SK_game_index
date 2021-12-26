@@ -21,7 +21,8 @@ def get_game_links(year):
         game_links.append(url + i.get('href'))
 
     end_time_for_year_iteration = datetime.now().timestamp()
-    time_to_complete_year_iteration = end_time_for_year_iteration - start_time_for_year_iteration
+    time_to_complete_year_iteration = end_time_for_year_iteration - \
+        start_time_for_year_iteration
     time_minutes = int(time_to_complete_year_iteration / 60)
     time_seconds = round(time_to_complete_year_iteration % 60, 1)
     print(f'Time needed to get {year} links: {time_minutes}m {time_seconds}s')
@@ -37,6 +38,7 @@ def scrape_game_data(links):
 
     start_time = datetime.now().timestamp()
     time_elapsed = 0
+    uid = 1
     game_data = []
     for link in links:
         start_time_link = datetime.now().timestamp()
@@ -44,17 +46,22 @@ def scrape_game_data(links):
         test_play.encoding = 'utf-8'
         soup = BeautifulSoup(test_play.text, 'html.parser')
 
-        title = soup.select('.naslovstrana')[0].text.strip() if soup.select('.naslovstrana') else ''
-        author = soup.select('.autordatum')[0].text.strip() if soup.select('.autordatum') else ''
+        title = soup.select('.naslovstrana')[0].text.strip(
+        ) if soup.select('.naslovstrana') else ''
+        author = soup.select('.autordatum')[0].text.strip(
+        ) if soup.select('.autordatum') else ''
         score = soup.select('.oc')[0].text.strip() if soup.select('.oc') else soup.select(
             '.Arhiva-Ocena')[0].text.strip() if soup.select('.Arhiva-Ocena') else ''
         platform = ''
         if soup.find('tr', string='Platforma:'):
-            platform = soup.find('tr', string='Platforma:').find_next('tr').text.strip()
+            platform = soup.find('tr', string='Platforma:').find_next(
+                'tr').text.strip()
         elif soup.find('tr', string='PLATFORMA:'):
-            platform = soup.find('tr', string='PLATFORMA:').find_next('tr').text.strip()
+            platform = soup.find('tr', string='PLATFORMA:').find_next(
+                'tr').text.strip()
         elif soup.find('tr', string='Platfoma:'):
-            platform = soup.find('tr', string='Platfoma:').find_next('tr').text.strip()
+            platform = soup.find('tr', string='Platfoma:').find_next(
+                'tr').text.strip()
         elif soup.select('.Arhiva-Kategorija'):
             for el in soup.select('.Arhiva-Kategorija'):
                 if 'Platforma' in el.text:
@@ -70,13 +77,16 @@ def scrape_game_data(links):
                                ):
             platform = 'PC'
 
-        date = soup.select('.autordatum')[1].text if soup.select('.autordatum') else ''
+        date = soup.select('.autordatum')[
+            1].text if soup.select('.autordatum') else ''
         date_temp = date.split(' ')
-        date_month = format_date(date_temp[1])
+        date_month = format_date( date_temp[1])
         date = str(date_month) + '.' + date_temp[2]
         link = test_play.url
+        id = title + str(uid)
+        uid += 1
 
-        game_data.append({'title': title, 'author': author, 'score': score,
+        game_data.append({'id': id, 'title': title, 'author': author, 'score': score,
                           'platform': platform, 'date': date, 'link': link})
 
         end_time_link = datetime.now().timestamp()
@@ -85,7 +95,7 @@ def scrape_game_data(links):
         time_seconds = round(time_to_finish_link_scrape % 60, 1)
         print(f'Time needed to scrape {link} data: {time_minutes}m {time_seconds}s')
         time_elapsed += time_to_finish_link_scrape
-        elapsed_minutes = int(time_elapsed / 60)
+        elapsed_minutes = int(time_elapsed / 60)        
         elapsed_seconds = round(time_elapsed % 60, 1)
         print(f'Time elapsed: {elapsed_minutes}m {elapsed_seconds}s')
 
@@ -144,13 +154,16 @@ def scrape_all_game_data(path, year=None, last_year=None):
     if last_year:
         start_year = 1998
         while start_year <= last_year:
-            save_json_to_file(path + str(start_year) + '.json', scrape_game_data(get_game_links(start_year)))
+            save_json_to_file(path + str(start_year) + '.json',
+                              scrape_game_data(get_game_links(start_year)))
             start_year += 1
     else:
-        save_json_to_file(path + str(year) + '.json', scrape_game_data(get_game_links(year)))
+        save_json_to_file(path + str(year) + '.json',
+                          scrape_game_data(get_game_links(year)))
 
     end_time = datetime.now().timestamp()
     time_to_finish = end_time - start_time
     total_minutes = int(time_to_finish / 60)
     total_seconds = round(time_to_finish % 60, 1)
-    print(f'Time needed to scrape TEST PLAY: {total_minutes}m {total_seconds}s')
+    print(
+        f'Time needed to scrape TEST PLAY: {total_minutes}m {total_seconds}s')
